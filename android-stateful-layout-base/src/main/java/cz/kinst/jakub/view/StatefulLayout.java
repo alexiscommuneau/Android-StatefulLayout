@@ -27,6 +27,7 @@ public class StatefulLayout extends FrameLayout {
 	private String mState;
 	private OnStateChangeListener mOnStateChangeListener;
 	private boolean mInitialized;
+	private int visibilityForHiding = GONE;
 
 
 	public interface OnStateChangeListener {
@@ -85,7 +86,7 @@ public class StatefulLayout extends FrameLayout {
 		if(view.getParent() == null) {
 			addView(view);
 		}
-		view.setVisibility(GONE);
+		view.setVisibility(visibilityForHiding);
 	}
 
 
@@ -105,7 +106,7 @@ public class StatefulLayout extends FrameLayout {
 
 		View previousView = mStateViews.get(mState);
 		if (previousView != null) {
-			previousView.setVisibility(View.GONE);
+			previousView.setVisibility(visibilityForHiding);
 		}
 		mState = state;
 		mStateViews.get(state).setVisibility(View.VISIBLE);
@@ -177,6 +178,19 @@ public class StatefulLayout extends FrameLayout {
 		mInitialized = true;
 	}
 
+	public void shouldUseInvisibleInsteadOfGone(boolean useInvisible) {
+		visibilityForHiding = useInvisible ? INVISIBLE : GONE;
+		updateHiddenViewsVisibility();
+	}
+
+	private void updateHiddenViewsVisibility() {
+		for(String s : mStateViews.keySet()) {
+			View view = mStateViews.get(s);
+			if (!s.equals(mState)) {
+				view.setVisibility(visibilityForHiding);
+			}
+		}
+	}
 
 	public static class State {
 		public static final String CONTENT = "content";
